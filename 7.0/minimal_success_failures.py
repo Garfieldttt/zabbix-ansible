@@ -7,7 +7,7 @@ from datetime import datetime
 class CallbackModule(CallbackBase):
     """
     Ein Callback-Plugin, das Host-Statistiken aggregiert und im JSON-Format in eine Log-Datei schreibt.
-    Zusätzliche Felder `last_run` und `playbook_name` werden für jeden Host-Eintrag hinzugefügt.
+    Zusätzliche Felder `playbook_name` und `last_run` werden für jeden Host-Eintrag hinzugefügt.
     """
 
     CALLBACK_VERSION = 2.0
@@ -93,7 +93,7 @@ class CallbackModule(CallbackBase):
             else:
                 status = "success"
 
-            # Host-spezifischer Eintrag
+            # Host-spezifischer Eintrag mit geänderter Reihenfolge
             output.append({
                 "host": host,
                 "status": status,
@@ -101,8 +101,8 @@ class CallbackModule(CallbackBase):
                 "failed_tasks": results["failed_tasks"],
                 "skipped_tasks": results["skipped_tasks"],
                 "unreachable": results["unreachable"],
-                "last_run": last_run_time,
-                "playbook_name": self.playbook_name or "unknown_playbook"
+                "playbook_name": self.playbook_name,
+                "last_run": last_run_time
             })
 
         # Schreibe die konsolidierten Ergebnisse in die Log-Datei
