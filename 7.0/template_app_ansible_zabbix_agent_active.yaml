@@ -1,0 +1,259 @@
+zabbix_export:
+  version: '7.0'
+  template_groups:
+    - uuid: 7df96b18c230490a9a0a9e2307226338
+      name: Templates
+  host_groups:
+    - uuid: 2f6bcd173eff433fa31b30ddb5222a6a
+      name: 4951-RZEN-SRV
+  templates:
+    - uuid: 4ff9ca4d3943410b9d23cdf62368601e
+      template: template_app_ansible
+      name: template_app_ansible
+      description: |
+        This template was created by Thomas Rzen.
+        
+        To ensure this template functions correctly, follow this guide: 
+        https://github.com/Garfieldttt/zabbix-ansible
+      groups:
+        - name: Templates
+      items:
+        - uuid: d5493faad69248409c2f0c5c84879adf
+          name: ansible.log.raw
+          type: ZABBIX_ACTIVE
+          key: 'vfs.file.contents[{$ANSIBLE_LOGFILE}]'
+          value_type: TEXT
+          trends: '0'
+      discovery_rules:
+        - uuid: 404cb67a1d7f45e1801e23eceae56030
+          name: ansible-jobs
+          type: DEPENDENT
+          key: ansible.jobs
+          delay: '0'
+          item_prototypes:
+            - uuid: 31a821fc347f42b2b5d3fd7650887daf
+              name: 'Ansible tasks failes {#ANSIBLE_HOSTNAME}'
+              type: DEPENDENT
+              key: 'ansible.changed.failed[{#ANSIBLE_HOSTNAME}]'
+              delay: '0'
+              trends: '0'
+              description: 'Number of failed tasks'
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$[?(@.host == "{#ANSIBLE_HOSTNAME}")].failed_tasks'
+                - type: LTRIM
+                  parameters:
+                    - '["'
+                - type: RTRIM
+                  parameters:
+                    - '"]'
+              master_item:
+                key: 'vfs.file.contents[{$ANSIBLE_LOGFILE}]'
+              tags:
+                - tag: Ansible
+                  value: failed-tasks
+            - uuid: d243bb5cb52a4b1db73719cb13ca412f
+              name: 'Ansible tasks skipped {#ANSIBLE_HOSTNAME}'
+              type: DEPENDENT
+              key: 'ansible.changed.skipped[{#ANSIBLE_HOSTNAME}]'
+              delay: '0'
+              trends: '0'
+              description: 'Number of skipped tasks'
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$[?(@.host == "{#ANSIBLE_HOSTNAME}")].skipped_tasks'
+                - type: LTRIM
+                  parameters:
+                    - '["'
+                - type: RTRIM
+                  parameters:
+                    - '"]'
+              master_item:
+                key: 'vfs.file.contents[{$ANSIBLE_LOGFILE}]'
+              tags:
+                - tag: Ansible
+                  value: skipped-tasks
+            - uuid: c66a2403031b43708846b01df4581fc9
+              name: 'Ansible tasks success {#ANSIBLE_HOSTNAME}'
+              type: DEPENDENT
+              key: 'ansible.changed.success_tasks[{#ANSIBLE_HOSTNAME}]'
+              delay: '0'
+              trends: '0'
+              description: 'Number of successful tasks'
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$[?(@.host == "{#ANSIBLE_HOSTNAME}")].success_tasks'
+                - type: LTRIM
+                  parameters:
+                    - '["'
+                - type: RTRIM
+                  parameters:
+                    - '"]'
+              master_item:
+                key: 'vfs.file.contents[{$ANSIBLE_LOGFILE}]'
+              tags:
+                - tag: Ansible
+                  value: success-tasks
+            - uuid: 13cdd88ef1a440bab2094ad406d4441d
+              name: 'Ansible tast status {#ANSIBLE_HOSTNAME}'
+              type: DEPENDENT
+              key: 'ansible.changed.task.status[{#ANSIBLE_HOSTNAME}]'
+              delay: '0'
+              trends: '0'
+              description: |
+                Number of unreachable tasks
+                success = 1
+                failed = 2
+                unreachable = 3
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$[?(@.host == "{#ANSIBLE_HOSTNAME}")].status'
+                - type: LTRIM
+                  parameters:
+                    - '["'
+                - type: RTRIM
+                  parameters:
+                    - '"]'
+                - type: STR_REPLACE
+                  parameters:
+                    - success
+                    - '1'
+                - type: STR_REPLACE
+                  parameters:
+                    - failed
+                    - '2'
+                - type: STR_REPLACE
+                  parameters:
+                    - unreachable
+                    - '3'
+              master_item:
+                key: 'vfs.file.contents[{$ANSIBLE_LOGFILE}]'
+              tags:
+                - tag: Ansible
+                  value: task-status
+              trigger_prototypes:
+                - uuid: b0d142e2458948719caffd893761fe7f
+                  expression: 'last(/template_app_ansible/ansible.changed.task.status[{#ANSIBLE_HOSTNAME}])=2'
+                  name: 'Ansible Job Failed {#ANSIBLE_HOSTNAME}'
+                  priority: DISASTER
+                  manual_close: 'YES'
+            - uuid: 6331f81d5ebf47a38aa11e77611e89b1
+              name: 'Ansible tasks unreachable {#ANSIBLE_HOSTNAME}'
+              type: DEPENDENT
+              key: 'ansible.changed.unreachable[{#ANSIBLE_HOSTNAME}]'
+              delay: '0'
+              trends: '0'
+              description: |
+                Number of unreachable tasks
+                false = 1
+                true = 2
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$[?(@.host == "{#ANSIBLE_HOSTNAME}")].unreachable'
+                - type: LTRIM
+                  parameters:
+                    - '["'
+                - type: RTRIM
+                  parameters:
+                    - '"]'
+                - type: STR_REPLACE
+                  parameters:
+                    - 'false'
+                    - '1'
+                - type: STR_REPLACE
+                  parameters:
+                    - 'true'
+                    - '2'
+              master_item:
+                key: 'vfs.file.contents[{$ANSIBLE_LOGFILE}]'
+              tags:
+                - tag: Ansible
+                  value: unreachable
+              trigger_prototypes:
+                - uuid: 8f97d222bf714a939789f4ae32f49fbe
+                  expression: 'last(/template_app_ansible/ansible.changed.unreachable[{#ANSIBLE_HOSTNAME}])=2'
+                  name: 'Ansible Job Unreachable {#ANSIBLE_HOSTNAME}'
+                  priority: HIGH
+                  manual_close: 'YES'
+          host_prototypes:
+            - uuid: 9ca079eb02da43429e817391e3d748d8
+              host: '{#VM.UUID}'
+              name: '{#VM.NAME}'
+              inventory_mode: AUTOMATIC
+              group_links:
+                - group:
+                    name: 4951-RZEN-SRV
+          master_item:
+            key: 'vfs.file.contents[{$ANSIBLE_LOGFILE}]'
+          lld_macro_paths:
+            - lld_macro: '{#ANSIBLE_HOSTNAME}'
+              path: $.host
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - '$.[*]'
+      macros:
+        - macro: '{$ANSIBLE_LOGFILE}'
+          value: /var/log/ansible.log
+      dashboards:
+        - uuid: 422e661e4c0247c3b677f6c5276cabd7
+          name: Ansible-Jobs
+          pages:
+            - widgets:
+                - type: graphprototype
+                  name: 'Ansible Jobs Overview'
+                  width: '72'
+                  height: '6'
+                  fields:
+                    - type: STRING
+                      name: reference
+                      value: NTWBQ
+                - type: graphprototype
+                  'y': '6'
+                  width: '72'
+                  height: '5'
+                  fields:
+                    - type: STRING
+                      name: reference
+                      value: OZTSN
+                    - type: INTEGER
+                      name: source_type
+                      value: '3'
+                - type: graphprototype
+                  'y': '11'
+                  width: '72'
+                  height: '5'
+                  fields:
+                    - type: STRING
+                      name: reference
+                      value: BDXGC
+                    - type: INTEGER
+                      name: source_type
+                      value: '3'
+                - type: graphprototype
+                  'y': '16'
+                  width: '72'
+                  height: '6'
+                  fields:
+                    - type: STRING
+                      name: reference
+                      value: VVZML
+                    - type: INTEGER
+                      name: source_type
+                      value: '3'
+                - type: graphprototype
+                  'y': '22'
+                  width: '72'
+                  height: '5'
+                  fields:
+                    - type: STRING
+                      name: reference
+                      value: SUNLP
+                    - type: INTEGER
+                      name: source_type
+                      value: '3'
