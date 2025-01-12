@@ -49,6 +49,9 @@ class CallbackModule(CallbackBase):
         self._ensure_host_entry(host)
         self.host_results[host]["success_tasks"] += 1
 
+        # Verbindung war erfolgreich, setze "unreachable" auf False
+        self.host_results[host]["unreachable"] = False
+
     def v2_runner_on_failed(self, result, ignore_errors=False):
         host = result._host.get_name()
         self._ensure_host_entry(host)
@@ -67,7 +70,7 @@ class CallbackModule(CallbackBase):
         self.host_results[host]["failed_tasks"] += 1
 
     def v2_runner_on_unreachable(self, result):
-        # Ignoriere "unreachable"-Meldungen, da sie nicht als Task-Fehler gelten
+        # Behandle "unreachable"-Meldungen separat
         host = result._host.get_name()
         self._ensure_host_entry(host)
         self.host_results[host]["unreachable"] = True
@@ -80,8 +83,14 @@ class CallbackModule(CallbackBase):
     def v2_playbook_on_stats(self, stats):
         output = []
         for host, results in self.host_results.items():
+            # Falls Tasks erfolgreich waren, ist der Host nicht "unreachable"
+            if results["success_tasks"] > 0:
+                results["unreachable"] = False
+
             if results["failed_tasks"] > 0:
                 status = "failed"
+            elif results["unreachable"]:
+                status = "unreachable"
             else:
                 status = "success"
 
@@ -98,6 +107,7 @@ class CallbackModule(CallbackBase):
         try:
             with open(self.log_file, 'w') as f:
                 json.dump(output, f, indent=2)
+                self._display.display(f"Results written to {self.log_file}")
         except Exception as e:
             self._display.warning(f"Could not write to log file {self.log_file}: {e}")
 
