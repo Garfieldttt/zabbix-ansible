@@ -47,4 +47,4 @@ stdout_callback = minimal_success_failures
    cd /tmp/zabbix-ansible/7.0/ && cp minimal_success_failures.py ~/.ansible/plugins/callback/
 
 ## Lizenz
-Dieses Projekt steht unter der [MIT Lizenz](LICENSE). Details findest du in der `LICENSE`-Datei.
+This project is licensed under the [MIT License](LICENSE). For more details, see the `LICENSE` file.
