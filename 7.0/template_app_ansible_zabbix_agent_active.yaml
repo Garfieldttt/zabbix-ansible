@@ -85,7 +85,7 @@ zabbix_export:
               preprocessing:
                 - type: JSONPATH
                   parameters:
-                    - '$[?(@.host == "{#ANSIBLE_HOSTNAME}")].playbook_name'
+                    - '$[?(@.host == "{#ANSIBLE_HOSTNAME}")].job_name'
                 - type: LTRIM
                   parameters:
                     - '["'
