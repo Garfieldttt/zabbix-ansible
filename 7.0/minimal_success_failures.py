@@ -1,20 +1,24 @@
 from ansible.plugins.callback import CallbackBase
 import json
 import os
+from datetime import datetime
+
 
 class CallbackModule(CallbackBase):
     """
-    Ein Callback-Plugin, das Erfolge, Fehlschläge und unerreichbare Hosts pro Host aggregiert und im JSON-Format in eine Log-Datei schreibt.
+    Ein Callback-Plugin, das Host-Statistiken aggregiert und im JSON-Format in eine Log-Datei schreibt.
+    Zusätzliche Felder `last_run` und `playbook_name` werden für jeden Host-Eintrag hinzugefügt.
     """
 
     CALLBACK_VERSION = 2.0
     CALLBACK_TYPE = 'stdout'
-    CALLBACK_NAME = 'aggregated_success_failures'
+    CALLBACK_NAME = 'minimal_success_failures'
 
     def __init__(self):
         super(CallbackModule, self).__init__()
         self.host_results = {}
         self.log_file = os.environ.get('ANSIBLE_LOG_FILE', '/var/log/ansible.log')
+        self.playbook_name = None
         self._load_existing_results()
 
     def _load_existing_results(self):
@@ -34,6 +38,12 @@ class CallbackModule(CallbackBase):
                         }
             except Exception as e:
                 self._display.warning(f"Could not load existing log file {self.log_file}: {e}")
+
+    def set_playbook_name(self, playbook_name):
+        """
+        Setzt den Playbook-Namen für die Ausgabe.
+        """
+        self.playbook_name = playbook_name
 
     def _ensure_host_entry(self, host):
         if host not in self.host_results:
@@ -64,7 +74,16 @@ class CallbackModule(CallbackBase):
         self._ensure_host_entry(host)
         self.host_results[host]["skipped_tasks"] += 1
 
+    def v2_playbook_on_start(self, playbook):
+        """
+        Wird aufgerufen, wenn ein Playbook gestartet wird.
+        Speichert den Playbook-Namen.
+        """
+        self.set_playbook_name(playbook._file_name)
+
     def v2_playbook_on_stats(self, stats):
+        last_run_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
         output = []
         for host, results in self.host_results.items():
             if results["unreachable"]:
@@ -74,13 +93,16 @@ class CallbackModule(CallbackBase):
             else:
                 status = "success"
 
+            # Host-spezifischer Eintrag
             output.append({
                 "host": host,
                 "status": status,
                 "success_tasks": results["success_tasks"],
                 "failed_tasks": results["failed_tasks"],
                 "skipped_tasks": results["skipped_tasks"],
-                "unreachable": results["unreachable"]
+                "unreachable": results["unreachable"],
+                "last_run": last_run_time,
+                "playbook_name": self.playbook_name or "unknown_playbook"
             })
 
         # Schreibe die konsolidierten Ergebnisse in die Log-Datei
