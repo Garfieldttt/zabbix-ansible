@@ -9,7 +9,6 @@ This repository combines a Zabbix template with a minimal Ansible callback plugi
 
 - **Ansible** should already be installed.
 - Zabbix Server 7.0 or higher.
-- You need write permissions for `/var/log/ansible.log`.
 
 ---
 
