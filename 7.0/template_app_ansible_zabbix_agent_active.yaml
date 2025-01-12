@@ -53,6 +53,54 @@ zabbix_export:
               tags:
                 - tag: Ansible
                   value: failed-tasks
+            - uuid: f9cdb1969a71417782d95869a2dfc66d
+              name: 'Host "{#ANSIBLE_HOSTNAME}"  - last playbook run'
+              type: DEPENDENT
+              key: 'ansible.changed.last_run[{#ANSIBLE_HOSTNAME}]'
+              delay: '0'
+              value_type: TEXT
+              trends: '0'
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$[?(@.host == "{#ANSIBLE_HOSTNAME}")].last_run'
+                - type: LTRIM
+                  parameters:
+                    - '["'
+                - type: RTRIM
+                  parameters:
+                    - '"]'
+              master_item:
+                key: 'vfs.file.contents[{$ANSIBLE_LOGFILE}]'
+              tags:
+                - tag: Ansible
+                  value: last-run
+            - uuid: c9e31769b2c04ee49c24ba06ccbaff28
+              name: 'Last executed playbook: {#ANSIBLE_HOSTNAME}'
+              type: DEPENDENT
+              key: 'ansible.changed.playbook_name[{#ANSIBLE_HOSTNAME}]'
+              delay: '0'
+              value_type: TEXT
+              trends: '0'
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$[?(@.host == "{#ANSIBLE_HOSTNAME}")].playbook_name'
+                - type: LTRIM
+                  parameters:
+                    - '["'
+                - type: RTRIM
+                  parameters:
+                    - '"]'
+                - type: REGEX
+                  parameters:
+                    - '[^/]+$'
+                    - \0
+              master_item:
+                key: 'vfs.file.contents[{$ANSIBLE_LOGFILE}]'
+              tags:
+                - tag: Ansible
+                  value: last-executed-playbook
             - uuid: d243bb5cb52a4b1db73719cb13ca412f
               name: 'Ansible tasks skipped {#ANSIBLE_HOSTNAME}'
               type: DEPENDENT
