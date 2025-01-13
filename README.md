@@ -1,6 +1,17 @@
 # Zabbix-Ansible
 ![Zabbix](https://img.shields.io/badge/Zabbix-7.0%2B-blue) ![License](https://img.shields.io/badge/license-MIT-green)
 
+# The template includes:
+
+- **failed-tasks:** Number of failed tasks.
+- **last-executed-playbook:** Name of the last executed playbook.
+- **last-run:** Timestamp of the last playbook run.
+- **skipped-tasks:** Number of skipped tasks.
+- **success-tasks:** Number of successful tasks.
+- **task-status:** Status of the last task (e.g., success, failed, unreachable).
+- **unreachable:** Number of unreachable tasks.
+
+
 This repository combines a Zabbix template with a minimal Ansible callback plugin to present Ansible output in a compact JSON format.
 
 ---
