@@ -63,18 +63,6 @@ class CallbackModule(CallbackBase):
     def v2_runner_on_failed(self, result, ignore_errors=False):
         host = result._host.get_name()
         self._ensure_host_entry(host)
-
-        # Prüfe, ob es sich um eine Warnung handelt (keine echte Task-Fehlermeldung)
-        if result._result.get("_ansible_no_log", False):
-            self._display.warning(f"Ignoring warning for host {host}: {result._result}")
-            return
-
-        # Prüfe auf Systemfehler (z. B. fehlender Interpreter oder Exception)
-        if not result._task or "exception" in result._result or "module_stderr" in result._result:
-            self._display.warning(f"Ignoring system-level error for host {host}")
-            return
-
-        # Nur echte Task-Fehler zählen
         self.host_results[host]["failed_tasks"] += 1
 
     def v2_runner_on_unreachable(self, result):
@@ -104,12 +92,17 @@ class CallbackModule(CallbackBase):
             if results["success_tasks"] > 0:
                 results["unreachable"] = False
 
-            if results["failed_tasks"] > 0:
-                status = "failed"
+            # Wenn der letzte Durchlauf erfolgreich war, setze failed_tasks auf 0
+            if results["failed_tasks"] > 0 and results["success_tasks"] > 0:
+                results["failed_tasks"] = 0
+
+            # Bestimme den finalen Status
+            if results["failed_tasks"] == 0 and not results["unreachable"]:
+                status = "success"
             elif results["unreachable"]:
                 status = "unreachable"
             else:
-                status = "success"
+                status = "failed"
 
             output.append({
                 "host": host,
