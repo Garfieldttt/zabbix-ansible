@@ -1,5 +1,5 @@
 # Zabbix-Ansible
-![Zabbix](https://img.shields.io/badge/Zabbix-7.0%2B-blue) ![License](https://img.shields.io/badge/license-MIT-green)
+![Zabbix](https://img.shields.io/badge/Zabbix-7.0%2B-blue) ![License](https://img.shields.io/badge/License-GPLv3-blue.svg)
 
 ## Notice
 This template is designed for use with the **Zabbix Agent (active)**.
