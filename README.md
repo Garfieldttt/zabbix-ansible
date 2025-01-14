@@ -1,6 +1,9 @@
 # Zabbix-Ansible
 ![Zabbix](https://img.shields.io/badge/Zabbix-7.0%2B-blue) ![License](https://img.shields.io/badge/license-MIT-green)
 
+## Notice
+This template is designed for use with the **Zabbix Agent (active)**.
+
 # The `template_app_ansible` includes:
 
 | Item                     | Description                                                                 |
