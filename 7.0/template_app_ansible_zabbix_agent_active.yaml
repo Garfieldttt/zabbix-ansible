@@ -32,12 +32,14 @@ zabbix_export:
           delay: '0'
           item_prototypes:
             - uuid: 31a821fc347f42b2b5d3fd7650887daf
-              name: 'Ansible tasks failes {#ANSIBLE_HOSTNAME}'
+              name: 'Ansible tasks failed {#ANSIBLE_HOSTNAME}'
               type: DEPENDENT
               key: 'ansible.changed.failed[{#ANSIBLE_HOSTNAME}]'
               delay: '0'
               trends: '0'
               description: 'Number of failed tasks'
+              valuemap:
+                name: Ansible-tasks-failed
               preprocessing:
                 - type: JSONPATH
                   parameters:
@@ -108,6 +110,8 @@ zabbix_export:
               delay: '0'
               trends: '0'
               description: 'Number of skipped tasks'
+              valuemap:
+                name: Ansible-tasks-skipped
               preprocessing:
                 - type: JSONPATH
                   parameters:
@@ -130,6 +134,8 @@ zabbix_export:
               delay: '0'
               trends: '0'
               description: 'Number of successful tasks'
+              valuemap:
+                name: Ansible-tasks-success
               preprocessing:
                 - type: JSONPATH
                   parameters:
@@ -146,16 +152,13 @@ zabbix_export:
                 - tag: Ansible
                   value: success-tasks
             - uuid: 13cdd88ef1a440bab2094ad406d4441d
-              name: 'Ansible tast status {#ANSIBLE_HOSTNAME}'
+              name: 'Ansible task status {#ANSIBLE_HOSTNAME}'
               type: DEPENDENT
               key: 'ansible.changed.task.status[{#ANSIBLE_HOSTNAME}]'
               delay: '0'
               trends: '0'
-              description: |
-                Number of unreachable tasks
-                success = 1
-                failed = 2
-                unreachable = 3
+              valuemap:
+                name: Ansible-tast-status
               preprocessing:
                 - type: JSONPATH
                   parameters:
@@ -195,10 +198,8 @@ zabbix_export:
               key: 'ansible.changed.unreachable[{#ANSIBLE_HOSTNAME}]'
               delay: '0'
               trends: '0'
-              description: |
-                Number of unreachable tasks
-                false = 1
-                true = 2
+              valuemap:
+                name: Ansible-tasks-unreachable
               preprocessing:
                 - type: JSONPATH
                   parameters:
@@ -212,11 +213,11 @@ zabbix_export:
                 - type: STR_REPLACE
                   parameters:
                     - 'false'
-                    - '1'
+                    - '0'
                 - type: STR_REPLACE
                   parameters:
                     - 'true'
-                    - '2'
+                    - '1'
               master_item:
                 key: 'vfs.file.contents[{$ANSIBLE_LOGFILE}]'
               tags:
@@ -305,3 +306,37 @@ zabbix_export:
                     - type: INTEGER
                       name: source_type
                       value: '3'
+      valuemaps:
+        - uuid: d4a1d9102a164c99b66a9ccca86571be
+          name: Ansible-tasks-failed
+          mappings:
+            - type: IN_RANGE
+              value: 0-999999
+              newvalue: failed
+        - uuid: 6fd5e52f491d4f76a2c95e98aa9fbeb9
+          name: Ansible-tasks-skipped
+          mappings:
+            - type: IN_RANGE
+              value: 0-999999
+              newvalue: skipped
+        - uuid: 514dc50ce3314a57823f8790093c1dae
+          name: Ansible-tasks-success
+          mappings:
+            - type: IN_RANGE
+              value: 0-999999
+              newvalue: success
+        - uuid: 6c37a36ca20340a5b26738f8bc265478
+          name: Ansible-tasks-unreachable
+          mappings:
+            - type: IN_RANGE
+              value: 0-1
+              newvalue: 'true'
+        - uuid: b3599ca006c4441f8627475854741454
+          name: Ansible-tast-status
+          mappings:
+            - value: '1'
+              newvalue: success
+            - value: '2'
+              newvalue: failed
+            - value: '3'
+              newvalue: unreachable
