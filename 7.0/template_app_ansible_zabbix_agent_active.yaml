@@ -225,7 +225,7 @@ zabbix_export:
                   value: unreachable
               trigger_prototypes:
                 - uuid: 8f97d222bf714a939789f4ae32f49fbe
-                  expression: 'last(/template_app_ansible/ansible.changed.unreachable[{#ANSIBLE_HOSTNAME}])=2'
+                  expression: 'last(/template_app_ansible/ansible.changed.unreachable[{#ANSIBLE_HOSTNAME}])=1'
                   name: 'Ansible Job Unreachable {#ANSIBLE_HOSTNAME}'
                   priority: HIGH
                   manual_close: 'YES'
@@ -330,7 +330,7 @@ zabbix_export:
           mappings:
             - type: IN_RANGE
               value: 0-1
-              newvalue: 'true'
+              newvalue: unreachable
         - uuid: b3599ca006c4441f8627475854741454
           name: Ansible-tast-status
           mappings:
