@@ -30,7 +30,7 @@ This repository combines a Zabbix template with a minimal Ansible callback plugi
 ---
 
 ## Installation & Setup
-
+**Note:** The Ansible user must have write permissions to the file `/var/log/ansible.log`. If this is not the case, adjust the permissions as needed with the following commands:
 1. **Create the Ansible log file and set permissions:**
 
    ```bash
