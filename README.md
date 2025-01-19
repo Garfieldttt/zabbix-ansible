@@ -36,6 +36,7 @@ This repository combines a Zabbix template with a minimal Ansible callback plugi
    ```bash
    sudo touch /var/log/ansible.log
    sudo chmod 744 /var/log/ansible.log
+   sudo chown $(whoami) /var/log/ansible.log
 
 2. **Create the callback directory:**
 
