@@ -63,3 +63,34 @@ stdout_callback = minimal_success_failures
    git clone https://github.com/Garfieldttt/zabbix-ansible
    cd /tmp/zabbix-ansible/7.0/ && cp minimal_success_failures.py ~/.ansible/plugins/callback/
 
+## Trigger Toggle Macros  
+
+The following macros are used to control the activation of triggers in Zabbix:  
+
+| Macro | Description |
+|--------|-------------|
+| `{$ANSIBLE_TRIGGER_TOGGLE_JOB:"{#ANSIBLE_HOSTNAME}"}=1` | Checks a host-specific macro value to toggle the job-related trigger. |
+| `{$ANSIBLE_TRIGGER_TOGGLE_UNREACHABLE:"{#ANSIBLE_HOSTNAME}"}=1` | Checks a host-specific macro value to toggle the unreachable trigger. |
+
+### Macro Requirements  
+The macros must have the value `1` to activate the corresponding trigger:  
+
+- `{$ANSIBLE_TRIGGER_TOGGLE_JOB:"{#ANSIBLE_HOSTNAME}"}` must be set to `1` for job-related triggers.  
+- `{$ANSIBLE_TRIGGER_TOGGLE_UNREACHABLE:"{#ANSIBLE_HOSTNAME}"}` must be set to `1` for unreachable triggers.  
+
+### Functionality  
+These macros allow toggling the respective triggers:  
+- If the macro value is `1`, the trigger is **activated**.  
+- If the macro value is `0`, the trigger is **deactivated**.  
+
+---
+
+## Installation & Setup  
+1. Ensure **Ansible** is installed and configured.  
+2. Configure the required macros in your **Zabbix template**.  
+3. Apply the template to monitored hosts in **Zabbix Server 7.0+**.  
+
+---
+
+This setup ensures better control over **job and unreachable state monitoring** in **Zabbix-Ansible integration**.
+
