@@ -8,8 +8,8 @@ zabbix_export:
       name: 4951-RZEN-SRV
   templates:
     - uuid: 4ff9ca4d3943410b9d23cdf62368601e
-      template: template_app_ansible
-      name: template_app_ansible
+      template: 'template ansible zabbix agent active'
+      name: 'template ansible zabbix agent active'
       description: |
         This template was created by Thomas Rzen.
         
@@ -188,8 +188,8 @@ zabbix_export:
                   value: task-status
               trigger_prototypes:
                 - uuid: b0d142e2458948719caffd893761fe7f
-                  expression: 'last(/template_app_ansible/ansible.changed.task.status[{#ANSIBLE_HOSTNAME}])=2'
-                  name: 'Ansible Job Failed {#ANSIBLE_HOSTNAME}'
+                  expression: 'last(/template ansible zabbix agent active/ansible.changed.task.status[{#ANSIBLE_HOSTNAME}])=2 and {$ANSIBLE_TRIGGER_TOGGLE_JOB:"{#ANSIBLE_HOSTNAME}"}=1'
+                  name: 'Ansible job failed {#ANSIBLE_HOSTNAME}'
                   priority: DISASTER
                   manual_close: 'YES'
             - uuid: 6331f81d5ebf47a38aa11e77611e89b1
@@ -225,8 +225,8 @@ zabbix_export:
                   value: unreachable
               trigger_prototypes:
                 - uuid: 8f97d222bf714a939789f4ae32f49fbe
-                  expression: 'last(/template_app_ansible/ansible.changed.unreachable[{#ANSIBLE_HOSTNAME}])=1'
-                  name: 'Ansible Job Unreachable {#ANSIBLE_HOSTNAME}'
+                  expression: 'last(/template ansible zabbix agent active/ansible.changed.unreachable[{#ANSIBLE_HOSTNAME}])=1 and {$ANSIBLE_TRIGGER_TOGGLE_UNREACHABLE:"{#ANSIBLE_HOSTNAME}"}=1'
+                  name: 'Ansible job unreachable {#ANSIBLE_HOSTNAME}'
                   priority: HIGH
                   manual_close: 'YES'
           host_prototypes:
@@ -249,6 +249,13 @@ zabbix_export:
       macros:
         - macro: '{$ANSIBLE_LOGFILE}'
           value: /var/log/ansible.log
+          description: 'Ansible log path'
+        - macro: '{$ANSIBLE_TRIGGER_TOGGLE_JOB}'
+          value: '1'
+          description: 'on=1 off=2'
+        - macro: '{$ANSIBLE_TRIGGER_TOGGLE_UNREACHABLE}'
+          value: '1'
+          description: 'on=1 off=2'
       dashboards:
         - uuid: 422e661e4c0247c3b677f6c5276cabd7
           name: Ansible-Jobs
