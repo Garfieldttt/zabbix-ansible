@@ -22,6 +22,7 @@ zabbix_export:
           name: ansible.log.raw
           type: ZABBIX_ACTIVE
           key: 'vfs.file.contents[{$ANSIBLE_LOGFILE}]'
+          history: '0'
           value_type: TEXT
           trends: '0'
       discovery_rules:
